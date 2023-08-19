@@ -14,9 +14,13 @@ uint32_t delayMS;
 
 #define Threshold 400
 #define MQ2pin A0
-float sensorValue;
+float sensorValue; 
+
+const int digitalPin_door = 34;
 
 void setup() {
+  pinMode(digitalPin_door, INPUT);
+  pinMode(sensor_DO, INPUT);
   Serial.begin(9600);
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
@@ -29,7 +33,8 @@ void setup() {
 
 void loop() {
   int val = digitalRead(sensor_DO);
-  sensorValue = analogRead(MQ2pin);
+  sensorValue = analogRead(MQ2pin); 
+  int pinState = digitalRead(digitalPin_door);
   delay(delayMS);
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -68,6 +73,10 @@ void loop() {
     Serial.println("       | Smoke Not detected!");
   }
   Serial.println("");
-
+   if (pinState == HIGH) {
+    Serial.println("Pin is HIGH (Door Opened)");
+  } else {
+    Serial.println("Pin is LOW  (Door Closed");
+  }
   delay(2000);
 }
