@@ -12,6 +12,10 @@ uint32_t delayMS;
 
 #define sensor_DO 5
 
+#define Threshold 400
+#define MQ2pin A0
+float sensorValue;
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
@@ -20,10 +24,12 @@ void setup() {
   dht.temperature().getSensor(&sensor);
   dht.humidity().getSensor(&sensor);
   delayMS = sensor.min_delay / 1000;
+  delay(2000);
 }
 
 void loop() {
   int val = digitalRead(sensor_DO);
+  sensorValue = analogRead(MQ2pin);
   delay(delayMS);
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -49,6 +55,19 @@ void loop() {
   } else {
     Serial.println("Digital Output:   Status: Wet");
   }
+  if(sensorValue > Threshold)
+  {
+    Serial.print("Sensor Value: ");
+    Serial.print(sensorValue);
+    Serial.println("       | Smoke detected!");
+  }
+  else
+  {
+    Serial.print("Sensor Value: ");
+    Serial.print(sensorValue);
+    Serial.println("       | Smoke Not detected!");
+  }
+  Serial.println("");
 
-  delay(1000);
+  delay(2000);
 }
