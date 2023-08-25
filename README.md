@@ -1,1 +1,1 @@
-# ESP_Senors_Integration
+# ESP_Sensors_Integration
