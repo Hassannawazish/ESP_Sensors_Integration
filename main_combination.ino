@@ -1,3 +1,4 @@
+#include <Arduino_FreeRTOS.h>
 #include <Adafruit_Sensor.h>
 #include <SoftwareSerial.h>
 #include <DHT.h>
@@ -18,6 +19,69 @@ float sensorValue;
 
 const int digitalPin_door = 34;
 
+void taskTemperatureHumidity(void *pvParameters) {
+  for (;;) {
+    sensors_event_t event;
+    dht.temperature().getEvent(&event);
+    if (isnan(event.temperature)) {
+      Serial.println(F("Error reading temperature!"));
+    } else {
+      Serial.print(F("Temperature: "));
+      Serial.print(event.temperature);
+      Serial.println(F("°C"));
+    }
+    dht.humidity().getEvent(&event);
+    if (isnan(event.relative_humidity)) {
+      Serial.println(F("Error reading humidity!"));
+    } else {
+      Serial.print(F("Humidity: "));
+      Serial.print(event.relative_humidity);
+      Serial.println(F("%"));
+    }
+    vTaskDelay(pdMS_TO_TICKS(delayMS));
+  }
+}
+
+void taskDigitalOutput(void *pvParameters) {
+  for (;;) {
+    int val = digitalRead(sensor_DO);
+    if (val == 1) {
+      Serial.println("Digital Output:   Status: Dry");
+    } else {
+      Serial.println("Digital Output:   Status: Wet");
+    }
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+}
+
+void taskSmokeDetection(void *pvParameters) {
+  for (;;) {
+    sensorValue = analogRead(MQ2pin); 
+    if(sensorValue > Threshold) {
+      Serial.print("Sensor Value: ");
+      Serial.print(sensorValue);
+      Serial.println("       | Smoke detected!");
+    } else {
+      Serial.print("Sensor Value: ");
+      Serial.print(sensorValue);
+      Serial.println("       | Smoke Not detected!");
+    }
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+}
+
+void taskDoorStatus(void *pvParameters) {
+  for (;;) {
+    int pinState = digitalRead(digitalPin_door);
+    if (pinState == HIGH) {
+      Serial.println("Pin is HIGH (Door Opened)");
+    } else {
+      Serial.println("Pin is LOW  (Door Closed)");
+    }
+    vTaskDelay(pdMS_TO_TICKS(2000));
+  }
+}
+
 void setup() {
   pinMode(digitalPin_door, INPUT);
   pinMode(sensor_DO, INPUT);
@@ -28,55 +92,14 @@ void setup() {
   dht.temperature().getSensor(&sensor);
   dht.humidity().getSensor(&sensor);
   delayMS = sensor.min_delay / 1000;
-  delay(2000);
+
+  xTaskCreate(taskTemperatureHumidity, "TempHumTask", 1000, NULL, 1, NULL);
+  xTaskCreate(taskDigitalOutput, "DigitalOutTask", 1000, NULL, 2, NULL);
+  xTaskCreate(taskSmokeDetection, "SmokeDetectTask", 1000, NULL, 3, NULL);
+  xTaskCreate(taskDoorStatus, "DoorStatusTask", 1000, NULL, 4, NULL);
+  
+  vTaskStartScheduler();
 }
 
 void loop() {
-  int val = digitalRead(sensor_DO);
-  sensorValue = analogRead(MQ2pin); 
-  int pinState = digitalRead(digitalPin_door);
-  delay(delayMS);
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
-  }
-  else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F("°C"));
-  }
-  dht.humidity().getEvent(&event);
-  if (isnan(event.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-  }
-  else {
-    Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
-    Serial.println(F("%"));
-  }
-  if (val == 1) {
-    Serial.println("Digital Output:   Status: Dry");
-  } else {
-    Serial.println("Digital Output:   Status: Wet");
-  }
-  if(sensorValue > Threshold)
-  {
-    Serial.print("Sensor Value: ");
-    Serial.print(sensorValue);
-    Serial.println("       | Smoke detected!");
-  }
-  else
-  {
-    Serial.print("Sensor Value: ");
-    Serial.print(sensorValue);
-    Serial.println("       | Smoke Not detected!");
-  }
-  Serial.println("");
-   if (pinState == HIGH) {
-    Serial.println("Pin is HIGH (Door Opened)");
-  } else {
-    Serial.println("Pin is LOW  (Door Closed");
-  }
-  delay(2000);
 }
