@@ -80,9 +80,9 @@ void setup() {
   dht.begin();
 
   xTaskCreate(taskTemperatureHumidity, "TempHumTask", 1000, NULL, 1, NULL);
-  xTaskCreate(taskDigitalOutput, "DigitalOutTask", 1000, NULL, 2, NULL);
-  xTaskCreate(taskSmokeDetection, "SmokeDetectTask", 1000, NULL, 3, NULL);
-  xTaskCreate(taskDoorStatus, "DoorStatusTask", 1000, NULL, 4, NULL);
+  xTaskCreate(taskDigitalOutput, "DigitalOutTask", 1000, NULL, 1, NULL);
+  xTaskCreate(taskSmokeDetection, "SmokeDetectTask", 1000, NULL, 1, NULL);
+  xTaskCreate(taskDoorStatus, "DoorStatusTask", 1000, NULL, 1, NULL);
 
   vTaskStartScheduler();
 }
