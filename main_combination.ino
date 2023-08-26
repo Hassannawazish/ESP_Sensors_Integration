@@ -5,7 +5,7 @@
 
 #define RX_PIN 16  // GPIO16 (D0)
 #define TX_PIN 17  // GPIO17 (D1)
-SoftwareSerial dhtSerial(RX_PIN, TX_PIN);  // RX, TX
+SoftwareSerial dhtSerial(RX_PIN, TX_PIN);
 #define DHTTYPE    DHT11
 DHT_Unified dht(RX_PIN, DHTTYPE);
 uint32_t delayMS;
