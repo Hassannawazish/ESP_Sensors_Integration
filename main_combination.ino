@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <SoftwareSerial.h>
 #include <DHT.h>
@@ -5,7 +8,7 @@
 
 #define RX_PIN 16  // GPIO16 (D0)
 #define TX_PIN 17  // GPIO17 (D1)
-SoftwareSerial dhtSerial(RX_PIN, TX_PIN);
+SoftwareSerial dhtSerial(RX_PIN, TX_PIN);  // RX, TX
 #define DHTTYPE    DHT11
 DHT_Unified dht(RX_PIN, DHTTYPE);
 uint32_t delayMS;
@@ -18,9 +21,19 @@ float sensorValue;
 
 const int digitalPin_door = 34;
 
+int measurePin = A3;
+int ledPower = 17;
+unsigned int samplingTime = 280;
+unsigned int deltaTime = 40;
+unsigned int sleepTime = 9680;
+float voMeasured = 0;
+float calcVoltage = 0;
+float dustDensity = 0;
+
 void setup() {
   pinMode(digitalPin_door, INPUT);
   pinMode(sensor_DO, INPUT);
+  pinMode(ledPower, OUTPUT);
   Serial.begin(9600);
   dht.begin();
   Serial.println(F("DHTxx Unified Sensor Example"));
@@ -32,6 +45,19 @@ void setup() {
 }
 
 void loop() {
+  digitalWrite(ledPower,LOW);
+  delayMicroseconds(samplingTime);
+  voMeasured = analogRead(measurePin);
+  delayMicroseconds(deltaTime);
+  digitalWrite(ledPower,HIGH);
+  delayMicroseconds(sleepTime);
+  voMeasured = map(voMeasured, 0, 4095, 0, 1023);
+  calcVoltage = voMeasured*(5.0/1024);
+  dustDensity = 0.17*calcVoltage-0.1;
+  if ( dustDensity < 0) {
+    dustDensity = 0.00;
+  }
+  
   int val = digitalRead(sensor_DO);
   sensorValue = analogRead(MQ2pin); 
   int pinState = digitalRead(digitalPin_door);
@@ -55,6 +81,14 @@ void loop() {
     Serial.print(event.relative_humidity);
     Serial.println(F("%"));
   }
+
+  Serial.print("Raw Signal Value (0-1023):  ");
+  Serial.print(voMeasured);
+  Serial.print("     Voltage:   ");
+  Serial.print(calcVoltage);
+  Serial.print("     Dust Density:   ");
+  Serial.println(dustDensity);
+  
   if (val == 1) {
     Serial.println("Digital Output:   Status: Dry");
   } else {
