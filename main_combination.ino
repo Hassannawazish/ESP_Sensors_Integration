@@ -17,9 +17,9 @@ uint32_t delayMS;
 
 #define Threshold 400
 #define MQ2pin A0
-float sensorValue; 
+float gasSensorValue; 
 
-const int digitalPin_door = 34;
+const int digitalPin_door_sensor = 34;
 
 int measurePin = A3;
 int ledPower = 17;
@@ -31,7 +31,7 @@ float calcVoltage = 0;
 float dustDensity = 0;
 
 void setup() {
-  pinMode(digitalPin_door, INPUT);
+  pinMode(digitalPin_door_sensor, INPUT);
   pinMode(sensor_DO, INPUT);
   pinMode(ledPower, OUTPUT);
   Serial.begin(9600);
@@ -58,9 +58,9 @@ void loop() {
     dustDensity = 0.00;
   }
   
-  int val = digitalRead(sensor_DO);
-  sensorValue = analogRead(MQ2pin); 
-  int pinState = digitalRead(digitalPin_door);
+  int water_sensor_val = digitalRead(sensor_DO);
+  gasSensorValue = analogRead(MQ2pin); 
+  int pinState = digitalRead(digitalPin_door_sensor);
   delay(delayMS);
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -89,21 +89,21 @@ void loop() {
   Serial.print("     Dust Density:   ");
   Serial.println(dustDensity);
   
-  if (val == 1) {
+  if (water_sensor_val == 1) {
     Serial.println("Digital Output:   Status: Dry");
   } else {
     Serial.println("Digital Output:   Status: Wet");
   }
-  if(sensorValue > Threshold)
+  if(gasSensorValue > Threshold)
   {
-    Serial.print("Sensor Value: ");
-    Serial.print(sensorValue);
+    Serial.print("Gas Sensor Value: ");
+    Serial.print(gasSensorValue);
     Serial.println("       | Smoke detected!");
   }
   else
   {
-    Serial.print("Sensor Value: ");
-    Serial.print(sensorValue);
+    Serial.print("Gas Sensor Value: ");
+    Serial.print(gasSensorValue);
     Serial.println("       | Smoke Not detected!");
   }
   Serial.println("");
