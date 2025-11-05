@@ -1,11 +1,11 @@
-# 🌡️ ESP32 Multi Sensor Project with FreeRTOS
+# ESP32 Multi Sensor Project with FreeRTOS
 
 This project uses an **ESP32** board with **FreeRTOS** to read data from different sensors at the same time.  
 It checks **temperature**, **humidity**, **soil moisture**, **smoke**, and **door status** and shows everything on the Serial Monitor.
 
 ---
 
-## 🧠 What It Does
+## What It Does
 
 - Reads **temperature and humidity** from a DHT11 sensor  
 - Checks **wet or dry soil** using a soil moisture sensor  
@@ -16,7 +16,7 @@ It checks **temperature**, **humidity**, **soil moisture**, **smoke**, and **doo
 
 ---
 
-## 🔧 Parts You Need
+## Parts You Need
 
 | Part | Use |
 |------|-----|
@@ -30,7 +30,7 @@ It checks **temperature**, **humidity**, **soil moisture**, **smoke**, and **doo
 
 ---
 
-## ⚙️ Pin Setup
+## Pin Setup
 
 | Sensor | ESP32 Pin | Description |
 |---------|------------|-------------|
