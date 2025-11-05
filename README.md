@@ -51,6 +51,8 @@ It checks **temperature**, **humidity**, **soil moisture**, **smoke**, and **doo
 | `taskDoorStatus()` | Checks door status | 2 sec |
 
 Each task runs on its own using FreeRTOS, so all work happens smoothly at once.
+The circuit Diagram is shown here.
+![Circuit](Circuit%20Diagram/Sensors_1_bb.png)
 
 ---
 # ESP_Sensors_Integration
